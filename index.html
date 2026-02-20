@@ -4,33 +4,28 @@
 <meta charset="UTF-8">
 <title>Probability Treasure Hunt</title>
 <style>
-body { font-family: Arial, sans-serif; text-align:center; background:#87ceeb; }
-.container { background:white; padding:20px; margin:20px auto; width:95%; max-width:1000px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3); }
-button { padding:10px 15px; margin:5px; border:none; border-radius:5px; cursor:pointer; background:#007bff; color:white; }
+body { font-family: Arial, sans-serif; background: linear-gradient(to top, #87ceeb 0%, #fff 100%); text-align:center; margin:0; padding:0;}
+.container { background:white; padding:20px; margin:20px auto; max-width:900px; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.3);}
+button { padding:10px 20px; margin:5px; font-size:16px; border:none; border-radius:5px; cursor:pointer; background:#007bff; color:white;}
 button:hover { background:#0056b3; }
-#message { font-weight:bold; font-size:1.2em; margin-top:10px; min-height:30px; }
-.choice { display:inline-block; margin:10px; cursor:pointer; }
-.choice svg { width:100px; height:80px; border:3px solid transparent; border-radius:5px; }
-.choice.selected svg { border-color:gold; }
-#inventory, #housePreview { margin-top:20px; }
+#message { font-weight:bold; font-size:1.2em; min-height:30px; margin-top:10px;}
 .progress-bar { width:80%; height:20px; background:#ddd; margin:10px auto; border-radius:10px; overflow:hidden; }
 .progress-fill { height:100%; background:gold; width:0%; transition: width 0.5s; }
+#inventory div { display:inline-block; margin:5px; padding:5px; border:1px solid #ccc; border-radius:5px; width:80px;}
+#housePreview svg { border:1px solid #000; margin-top:10px; }
 </style>
 </head>
 <body>
 
-<!-- Stage 1 -->
 <div class="container" id="stage1">
 <h2>Stage 1: Treasure Hunt</h2>
 <p>Coins: <span id="money">0</span></p>
 <p>Round: <span id="round">1</span>/5</p>
-<p id="question"></p>
-<div id="answers"></div>
+<div id="chests"></div>
 <p id="message"></p>
 <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 </div>
 
-<!-- Stage 2 -->
 <div class="container" id="stage2" style="display:none;">
 <h2>Stage 2: Inventory</h2>
 <p>Collected Treasures:</p>
@@ -39,7 +34,6 @@ button:hover { background:#0056b3; }
 <p id="msg2"></p>
 </div>
 
-<!-- Stage 3 -->
 <div class="container" id="stage3" style="display:none;">
 <h2>Stage 3: Treasure House</h2>
 <div id="housePreview"></div>
@@ -47,15 +41,16 @@ button:hover { background:#0056b3; }
 </div>
 
 <script>
-// ===== STAGE 1: Treasure Hunt =====
 let money=0, round=1;
 const targetMoney=20000;
+let collectedTreasures=[];
+
 const rounds = [
-{q:"You find a sunny beach. Choose an action:", options:["Dig for shells","Look under rocks","Check palm trees"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
-{q:"A small storm comes. How do you act?", options:["Hide in cave","Collect water","Run along shore"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
-{q:"You find a forest path. Choose:", options:["Follow animals","Look for berries","Climb tree"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
-{q:"A river blocks your way. What do you do?", options:["Use boat","Swim carefully","Search bridge"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
-{q:"You see a cave entrance. Choose:", options:["Enter carefully","Peek outside","Wait"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]}
+{q:"You see 3 treasure chests on the beach!", rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
+{q:"A small cave with hidden chests appears!", rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
+{q:"In the forest, you find mysterious boxes!", rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
+{q:"Near the river, shiny chests lie around!", rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
+{q:"Inside the volcano, ancient chests await!", rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]}
 ];
 
 function showRound(){
@@ -73,52 +68,56 @@ function showRound(){
   }
   const current=rounds[round-1];
   document.getElementById("round").innerText=round;
-  document.getElementById("question").innerText=current.q;
-  const answersDiv=document.getElementById("answers");
-  answersDiv.innerHTML="";
-  current.options.forEach((opt,i)=>{
+  const chestsDiv=document.getElementById("chests");
+  chestsDiv.innerHTML="";
+  for(let i=0;i<3;i++){
     const btn=document.createElement("button");
-    btn.textContent=opt;
-    btn.onclick=()=>checkAnswer(i);
-    answersDiv.appendChild(btn);
-  });
+    btn.innerHTML=`Chest ${i+1} 💰`;
+    btn.onclick=()=>openChest(i);
+    chestsDiv.appendChild(btn);
+  }
+  document.getElementById("message").innerText="Click a chest to collect treasure!";
 }
 
-function checkAnswer(i){
+function openChest(i){
   const current=rounds[round-1];
   const rand=Math.random();
-  let cumProb=0;
-  let reward=0;
+  let cumProb=0, reward=0;
   for(let j=0;j<current.probs.length;j++){
     cumProb+=current.probs[j];
     if(rand<=cumProb){ reward=current.rewards[j]; break; }
   }
   money+=reward;
+  collectedTreasures.push(reward);
   document.getElementById("money").innerText=money;
-  document.getElementById("message").innerText=`✨ You earned ₹${reward} coins!`;
+  document.getElementById("message").innerText=`✨ You opened chest and earned ₹${reward} coins!`;
   document.getElementById("progress").style.width=`${Math.min(100,money/targetMoney*100)}%`;
+
+  // Coin animation
+  const msg=document.createElement("div");
+  msg.innerText="💰";
+  msg.style.position="absolute"; msg.style.fontSize="24px";
+  msg.style.left=(Math.random()*80+10)+"%"; msg.style.top="50%";
+  document.body.appendChild(msg);
+  setTimeout(()=>msg.remove(),800);
+
   round++;
-  setTimeout(showRound,800);
+  setTimeout(showRound,1000);
 }
 
 function initStage1(){ showRound(); }
 initStage1();
 
-// ===== STAGE 2: Inventory =====
-let inventory=[];
+// Stage 2: Inventory
 function displayInventory(){
-  inventory=[];
-  for(let r of rounds){
-    inventory.push({type:"Coin", amount:r.rewards[0]});
-  }
   const invDiv=document.getElementById("inventory");
   invDiv.innerHTML="";
-  inventory.forEach((item,i)=>{
-    invDiv.innerHTML+=`<div style="display:inline-block;margin:5px;padding:5px;border:1px solid #ccc;border-radius:5px;width:80px;">${item.type}<br>₹${item.amount}</div>`;
+  collectedTreasures.forEach((amt,i)=>{
+    invDiv.innerHTML+=`<div>Coin<br>₹${amt}</div>`;
   });
 }
 
-// ===== STAGE 3: Treasure House =====
+// Stage 3: Treasure House
 function finishStage2(){
   document.getElementById("stage2").style.display="none";
   document.getElementById("stage3").style.display="block";
@@ -127,9 +126,9 @@ function finishStage2(){
   // House base
   houseHTML+=`<rect x="100" y="100" width="300" height="150" fill="#f4c2c2" stroke="#000"/>`;
   houseHTML+=`<polygon points="90,100 250,20 410,100" fill="#8b0000" stroke="#000"/>`;
-  // Coins as treasure inside
+  // Coins inside
   let x=120, y=120;
-  inventory.forEach((item,i)=>{
+  collectedTreasures.forEach((amt,i)=>{
     houseHTML+=`<circle cx="${x}" cy="${y}" r="10" fill="gold"><animate attributeName="cy" values="${y};${y-20};${y}" dur="1s" repeatCount="1"/></circle>`;
     x+=40; if(x>400){ x=120; y+=30; }
   });
@@ -137,3 +136,6 @@ function finishStage2(){
   houseDiv.innerHTML=houseHTML;
   document.getElementById("msg3").innerText="🎉 Congratulations! You built your treasure house!";
 }
+</script>
+</body>
+</html>
