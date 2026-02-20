@@ -54,10 +54,9 @@ button:hover{
 <div class="container" id="stage1">
 <h2>Stage 1: Earn Money</h2>
 <p>Money: ₹<span id="money">0</span></p>
-<p id="question">If 5 workers build 5 walls in 5 days, how many walls can 1 worker build in 5 days?</p>
-<button onclick="answer(1)">1 Wall</button>
-<button onclick="answer(5)">5 Walls</button>
-<button onclick="answer(25)">25 Walls</button>
+<p>Round: <span id="round">1</span>/5</p>
+<p id="question"></p>
+<div id="answers"></div>
 <p id="message"></p>
 </div>
 
@@ -83,31 +82,23 @@ button:hover{
 
 <h3>Select Roof</h3>
 <div class="choice" onclick="selectRoof('#8b0000', this)">
-<svg>
-<polygon points="0,80 60,10 120,80" fill="#8b0000"/>
-</svg>
+<svg><polygon points="0,80 60,10 120,80" fill="#8b0000"/></svg>
 <p>Red Roof (₹4000)</p>
 </div>
 
 <div class="choice" onclick="selectRoof('#444', this)">
-<svg>
-<polygon points="0,80 60,10 120,80" fill="#444"/>
-</svg>
+<svg><polygon points="0,80 60,10 120,80" fill="#444"/></svg>
 <p>Dark Roof (₹4000)</p>
 </div>
 
 <h3>Select Door</h3>
 <div class="choice" onclick="selectDoor('#654321', this)">
-<svg>
-<rect x="40" y="30" width="40" height="70" fill="#654321"/>
-</svg>
+<svg><rect x="40" y="30" width="40" height="70" fill="#654321"/></svg>
 <p>Wood Door (₹3000)</p>
 </div>
 
 <div class="choice" onclick="selectDoor('#222', this)">
-<svg>
-<rect x="40" y="30" width="40" height="70" fill="#222"/>
-</svg>
+<svg><rect x="40" y="30" width="40" height="70" fill="#222"/></svg>
 <p>Modern Door (₹3000)</p>
 </div>
 
@@ -122,22 +113,70 @@ button:hover{
 </div>
 
 <script>
+// ===== STAGE 1 =====
 let money = 0;
+let round = 1;
 
-function answer(val){
-  if(val == 1){
-    money += 5000;
-    document.getElementById("message").innerText="Correct! You earned ₹5000";
-    document.getElementById("money").innerText=money;
-    setTimeout(()=>{
+const rounds = [
+  {q:"You helped a friend carry bags. Which action gives the best reward?", 
+   options:["Carry small loads","Carry big loads","Organize the bags"], correct:1, reward:4000},
+  {q:"You cleaned a yard. What should you do?", 
+   options:["Sweep yard","Trim bushes","Move logs"], correct:0, reward:4000},
+  {q:"Sold lemonade today. What brings max money?", 
+   options:["Serve cups","Mix lemonade","Decorate booth"], correct:2, reward:4000},
+  {q:"Folded clothes at home. Best choice?", 
+   options:["Fold neatly","Sort colors","Stack fast"], correct:0, reward:4000},
+  {q:"Helped pack boxes at shop. Choose wisely.", 
+   options:["Pack carefully","Stack boxes","Label items"], correct:0, reward:4000}
+];
+
+function showRound(){
+  if(round>5){
+    // End of stage1
+    if(money >= 20000){
       document.getElementById("stage1").style.display="none";
       document.getElementById("stage2").style.display="block";
-    },1500);
-  } else {
-    document.getElementById("message").innerText="Wrong answer. Try again!";
+    } else {
+      document.getElementById("message").innerText="💸 Not enough money to build the house. Restart Stage 1.";
+      money=0; round=1;
+      setTimeout(initStage1,2000);
+    }
+    return;
   }
+  document.getElementById("round").innerText=round;
+  document.getElementById("message").innerText="";
+  const current = rounds[round-1];
+  document.getElementById("question").innerText=current.q;
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML="";
+  current.options.forEach((opt,i)=>{
+    const btn = document.createElement("button");
+    btn.textContent=opt;
+    btn.onclick = ()=>checkAnswer(i);
+    answersDiv.appendChild(btn);
+  });
 }
 
+function checkAnswer(i){
+  const current = rounds[round-1];
+  if(i === current.correct){
+    money += current.reward;
+    document.getElementById("money").innerText=money;
+    document.getElementById("message").innerText=`✅ Correct! You earned ₹${current.reward}`;
+  } else {
+    document.getElementById("message").innerText="❌ Wrong! No money earned this round.";
+  }
+  round++;
+  setTimeout(showRound,800);
+}
+
+function initStage1(){
+  document.getElementById("money").innerText=money;
+  showRound();
+}
+initStage1();
+
+// ===== STAGE 2 =====
 let budget=20000;
 let wallColor="#fff";
 let roofColor="#8b0000";
