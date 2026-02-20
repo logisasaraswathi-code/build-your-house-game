@@ -1,91 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dream House Builder Game</title>
+<title>Probability Treasure Hunt</title>
 <style>
-body { font-family: Arial; text-align:center; background:#f4f4f4; }
-.container { background:white; padding:20px; margin:20px auto; width:95%; max-width:1000px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); }
+body { font-family: Arial, sans-serif; text-align:center; background:#87ceeb; }
+.container { background:white; padding:20px; margin:20px auto; width:95%; max-width:1000px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3); }
 button { padding:10px 15px; margin:5px; border:none; border-radius:5px; cursor:pointer; background:#007bff; color:white; }
 button:hover { background:#0056b3; }
+#message { font-weight:bold; font-size:1.2em; margin-top:10px; min-height:30px; }
 .choice { display:inline-block; margin:10px; cursor:pointer; }
 .choice svg { width:100px; height:80px; border:3px solid transparent; border-radius:5px; }
-.choice.selected svg { border-color:green; }
-#housePreview { margin-top:20px; }
+.choice.selected svg { border-color:gold; }
+#inventory, #housePreview { margin-top:20px; }
+.progress-bar { width:80%; height:20px; background:#ddd; margin:10px auto; border-radius:10px; overflow:hidden; }
+.progress-fill { height:100%; background:gold; width:0%; transition: width 0.5s; }
 </style>
 </head>
 <body>
 
 <!-- Stage 1 -->
 <div class="container" id="stage1">
-<h2>Stage 1: Earn Money</h2>
-<p>Money: ₹<span id="money">0</span></p>
+<h2>Stage 1: Treasure Hunt</h2>
+<p>Coins: <span id="money">0</span></p>
 <p>Round: <span id="round">1</span>/5</p>
 <p id="question"></p>
 <div id="answers"></div>
 <p id="message"></p>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 </div>
 
 <!-- Stage 2 -->
 <div class="container" id="stage2" style="display:none;">
-<h2>Stage 2: Build Your House (Budget ₹20000)</h2>
-<p>Money left: ₹<span id="money2">20000</span></p>
-
-<h3>Select Wall Color (₹3000 each)</h3>
-<div id="wallChoices"></div>
-
-<h3>Select Roof Color/Style (₹4000 each)</h3>
-<div id="roofChoices"></div>
-
-<h3>Select Door (₹3000 each)</h3>
-<div id="doorChoices"></div>
-
-<h3>Select Furniture / Decor</h3>
-<div id="furnitureChoices"></div>
-
-<br><br>
-<button onclick="finishStage2()">Finish Construction</button>
+<h2>Stage 2: Inventory</h2>
+<p>Collected Treasures:</p>
+<div id="inventory"></div>
+<button onclick="finishStage2()">Build Treasure House</button>
 <p id="msg2"></p>
 </div>
 
 <!-- Stage 3 -->
 <div class="container" id="stage3" style="display:none;">
-<h2>Stage 3: Your Final House</h2>
+<h2>Stage 3: Treasure House</h2>
 <div id="housePreview"></div>
+<p id="msg3"></p>
 </div>
 
 <script>
-// ===== STAGE 1 =====
-let money = 0;
-let round = 1;
+// ===== STAGE 1: Treasure Hunt =====
+let money=0, round=1;
+const targetMoney=20000;
 const rounds = [
-  {q:"You are in a sunny field. What do you do to earn?", options:["Sell lemonade","Play guitar","Draw pictures"], correct:0, reward:4000},
-  {q:"You need to survive a small storm. Your action?", options:["Take shelter","Run around","Dance"], correct:0, reward:4000},
-  {q:"Help neighbors carry goods. Best choice?", options:["Carry carefully","Run fast","Ignore"], correct:0, reward:4000},
-  {q:"Clean yard quickly. Choose:", options:["Sweep neatly","Sweep lazily","Rest"], correct:0, reward:4000},
-  {q:"Help pack boxes. Choose:", options:["Label boxes","Stack messily","Ignore"], correct:0, reward:4000}
+{q:"You find a sunny beach. Choose an action:", options:["Dig for shells","Look under rocks","Check palm trees"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
+{q:"A small storm comes. How do you act?", options:["Hide in cave","Collect water","Run along shore"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
+{q:"You find a forest path. Choose:", options:["Follow animals","Look for berries","Climb tree"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
+{q:"A river blocks your way. What do you do?", options:["Use boat","Swim carefully","Search bridge"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]},
+{q:"You see a cave entrance. Choose:", options:["Enter carefully","Peek outside","Wait"], rewards:[4000,5000,10000], probs:[0.6,0.3,0.1]}
 ];
 
 function showRound(){
   if(round>5){
-    if(money>=20000){
+    if(money>=targetMoney){
       document.getElementById("stage1").style.display="none";
       document.getElementById("stage2").style.display="block";
+      displayInventory();
     } else {
-      document.getElementById("message").innerText="💸 Not enough money to build the house. Restart Stage 1.";
+      document.getElementById("message").innerText="💸 Not enough coins! Restart Stage 1.";
       money=0; round=1;
       setTimeout(initStage1,2000);
     }
     return;
   }
-  const current = rounds[round-1];
+  const current=rounds[round-1];
   document.getElementById("round").innerText=round;
   document.getElementById("question").innerText=current.q;
-  document.getElementById("message").innerText="";
-  const answersDiv = document.getElementById("answers");
+  const answersDiv=document.getElementById("answers");
   answersDiv.innerHTML="";
   current.options.forEach((opt,i)=>{
-    const btn = document.createElement("button");
+    const btn=document.createElement("button");
     btn.textContent=opt;
     btn.onclick=()=>checkAnswer(i);
     answersDiv.appendChild(btn);
@@ -93,117 +85,55 @@ function showRound(){
 }
 
 function checkAnswer(i){
-  const current = rounds[round-1];
-  if(i===current.correct){
-    money+=current.reward;
-    document.getElementById("money").innerText=money;
-    document.getElementById("message").innerText=`✅ Correct! You earned ₹${current.reward}`;
-  } else {
-    document.getElementById("message").innerText="❌ Wrong! No money earned this round.";
+  const current=rounds[round-1];
+  const rand=Math.random();
+  let cumProb=0;
+  let reward=0;
+  for(let j=0;j<current.probs.length;j++){
+    cumProb+=current.probs[j];
+    if(rand<=cumProb){ reward=current.rewards[j]; break; }
   }
+  money+=reward;
+  document.getElementById("money").innerText=money;
+  document.getElementById("message").innerText=`✨ You earned ₹${reward} coins!`;
+  document.getElementById("progress").style.width=`${Math.min(100,money/targetMoney*100)}%`;
   round++;
   setTimeout(showRound,800);
 }
 
-function initStage1(){
-  document.getElementById("money").innerText=money;
-  showRound();
-}
+function initStage1(){ showRound(); }
 initStage1();
 
-// ===== STAGE 2 =====
-let budget=20000;
-let wallColor="#f4c2c2", roofColor="#8b0000", doorColor="#654321";
-let furnitureSelected=[];
-
-const walls = [
-  {color:"#f4c2c2", name:"Light Pink"}, {color:"#d4edda", name:"Light Green"}, {color:"#d6e4ff", name:"Light Blue"}, 
-  {color:"#fffacd", name:"Light Yellow"}, {color:"#e6e6fa", name:"Lavender"}
-];
-
-const roofs = [
-  {color:"#8b0000", name:"Red Roof"}, {color:"#444", name:"Dark Roof"}, {color:"#ffa500", name:"Orange Roof"},
-  {color:"#8b4513", name:"Brown Roof"}, {color:"#2e8b57", name:"Green Roof"}
-];
-
-const doors = [
-  {color:"#654321", name:"Wood Door"}, {color:"#222", name:"Modern Door"}, {color:"#deb887", name:"Light Wood Door"},
-  {color:"#000", name:"Black Door"}, {color:"#a52a2a", name:"Brown Door"}
-];
-
-const furniture = [
-  {name:"Sofa", color:"#ff6347"}, {name:"Bed", color:"#4682b4"}, {name:"Table", color:"#d2691e"}, 
-  {name:"Chair", color:"#9acd32"}, {name:"Painting", color:"#ff69b4"}, {name:"Lamp", color:"#ffff00"}
-];
-
-function createChoices(containerId, items, cost, selectFunc){
-  const container=document.getElementById(containerId);
-  items.forEach(item=>{
-    const div=document.createElement("div");
-    div.className="choice";
-    div.onclick=()=>selectFunc(item.color, div, item.name, cost);
-    let svg = '';
-    if(containerId==="furnitureChoices"){
-      svg=`<svg><rect width="80" height="60" fill="${item.color}"/></svg>`;
-    } else if(containerId==="wallChoices"){
-      svg=`<svg><rect width="100" height="80" fill="${item.color}"/></svg>`;
-    } else if(containerId==="roofChoices"){
-      svg=`<svg><polygon points="0,80 50,0 100,80" fill="${item.color}"/></svg>`;
-    } else if(containerId==="doorChoices"){
-      svg=`<svg><rect x="20" y="10" width="60" height="70" fill="${item.color}"/></svg>`;
-    }
-    div.innerHTML=svg + `<p>${item.name} (₹${cost})</p>`;
-    container.appendChild(div);
+// ===== STAGE 2: Inventory =====
+let inventory=[];
+function displayInventory(){
+  inventory=[];
+  for(let r of rounds){
+    inventory.push({type:"Coin", amount:r.rewards[0]});
+  }
+  const invDiv=document.getElementById("inventory");
+  invDiv.innerHTML="";
+  inventory.forEach((item,i)=>{
+    invDiv.innerHTML+=`<div style="display:inline-block;margin:5px;padding:5px;border:1px solid #ccc;border-radius:5px;width:80px;">${item.type}<br>₹${item.amount}</div>`;
   });
 }
 
-function highlight(el){
-  const siblings = el.parentElement.querySelectorAll(".choice");
-  siblings.forEach(c=>c.classList.remove("selected"));
-  el.classList.add("selected");
-}
-
-function selectWall(color, el, name, cost){
-  if(budget>=cost){ wallColor=color; budget-=cost; document.getElementById("money2").innerText=budget; highlight(el); }
-}
-function selectRoof(color, el, name, cost){
-  if(budget>=cost){ roofColor=color; budget-=cost; document.getElementById("money2").innerText=budget; highlight(el); }
-}
-function selectDoor(color, el, name, cost){
-  if(budget>=cost){ doorColor=color; budget-=cost; document.getElementById("money2").innerText=budget; highlight(el); }
-}
-function selectFurniture(color, el, name, cost){
-  if(budget>=cost){ furnitureSelected.push({name,color}); budget-=cost; document.getElementById("money2").innerText=budget; highlight(el); }
-}
-
-// Populate Stage 2
-createChoices("wallChoices", walls, 3000, selectWall);
-createChoices("roofChoices", roofs, 4000, selectRoof);
-createChoices("doorChoices", doors, 3000, selectDoor);
-createChoices("furnitureChoices", furniture, 2000, selectFurniture);
-
+// ===== STAGE 3: Treasure House =====
 function finishStage2(){
   document.getElementById("stage2").style.display="none";
   document.getElementById("stage3").style.display="block";
-
-  // Build house with walls, roof, door
-  let houseHTML=`
-  <svg width="400" height="300">
-    <rect x="100" y="120" width="200" height="150" fill="${wallColor}" stroke="black"/>
-    <polygon points="90,120 200,40 310,120" fill="${roofColor}" stroke="black"/>
-    <rect x="180" y="180" width="40" height="90" fill="${doorColor}" stroke="black"/>
-  `;
-  // Furniture
-  let x=120, y=150;
-  furnitureSelected.forEach(f=>{
-    houseHTML+=`<rect x="${x}" y="${y}" width="40" height="40" fill="${f.color}" stroke="black"/>`;
-    x+=60;
-    if(x>260){x=120; y+=50;}
+  const houseDiv=document.getElementById("housePreview");
+  let houseHTML=`<svg width="500" height="300">`;
+  // House base
+  houseHTML+=`<rect x="100" y="100" width="300" height="150" fill="#f4c2c2" stroke="#000"/>`;
+  houseHTML+=`<polygon points="90,100 250,20 410,100" fill="#8b0000" stroke="#000"/>`;
+  // Coins as treasure inside
+  let x=120, y=120;
+  inventory.forEach((item,i)=>{
+    houseHTML+=`<circle cx="${x}" cy="${y}" r="10" fill="gold"><animate attributeName="cy" values="${y};${y-20};${y}" dur="1s" repeatCount="1"/></circle>`;
+    x+=40; if(x>400){ x=120; y+=30; }
   });
-  houseHTML+='</svg>';
-  document.getElementById("housePreview").innerHTML=houseHTML;
+  houseHTML+="</svg>";
+  houseDiv.innerHTML=houseHTML;
+  document.getElementById("msg3").innerText="🎉 Congratulations! You built your treasure house!";
 }
-</script>
-
-</body>
-</html>
