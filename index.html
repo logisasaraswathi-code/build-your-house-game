@@ -5,73 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dream House Builder Game</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background-color: #f0f8ff;
-        margin: 0;
-        padding: 0;
-    }
-    h1 {
-        color: #2c3e50;
-        margin: 20px 0;
-    }
-    .hidden { display: none; }
-    button {
-        font-size: 16px;
-        padding: 10px 15px;
-        margin: 5px;
-        cursor: pointer;
-    }
-    #moneyDisplay {
-        font-size: 24px;
-        margin: 10px 0;
-    }
-    #feedback {
-        font-size: 18px;
-        margin: 10px 0;
-        min-height: 30px;
-        transition: all 0.5s;
-    }
-    /* Stage 2 sliders */
-    .slider-container {
-        margin: 10px 0;
-        width: 300px;
-        display: inline-block;
-        text-align: left;
-    }
-    .slider-container label {
-        display: block;
-        margin-bottom: 5px;
-    }
-    .slider-container input[type=range] {
-        width: 100%;
-    }
-    /* House Stage */
-    #houseContainer {
-        display: grid;
-        grid-template-columns: repeat(5, 60px);
-        grid-gap: 5px;
-        justify-content: center;
-        margin-top: 20px;
-    }
-    .block {
-        width: 60px;
-        height: 60px;
-        background-color: #ddd;
-        border: 2px solid #2c3e50;
-        transition: background-color 0.5s, transform 0.3s;
-    }
-    .filled {
-        background-color: #3498db;
-        transform: scale(1.1);
-    }
-    .furniture {
-        background-color: #e67e22;
-    }
-    .decoration {
-        background-color: #f1c40f;
-    }
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0; padding: 0;
+    background-color: #f0f8ff;
+}
+h1, h2 {
+    color: #2c3e50;
+    margin: 15px 0;
+}
+.hidden { display: none; }
+button {
+    font-size: 16px;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+}
+#moneyDisplay { font-size: 24px; margin: 10px 0; }
+#feedback { font-size: 18px; min-height: 30px; transition: all 0.5s; }
+.slider-container { margin: 10px 0; width: 300px; display: inline-block; text-align: left; }
+.slider-container label { display: block; margin-bottom: 5px; }
+.slider-container input[type=range] { width: 100%; }
+#houseContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 60px);
+    grid-gap: 5px;
+    justify-content: center;
+    margin-top: 20px;
+}
+.block { width: 60px; height: 60px; background-color: #ddd; border: 2px solid #2c3e50; transition: all 0.5s; }
+.filled { background-color: #3498db; transform: scale(1.1); }
+.furniture { background-color: #e67e22; }
+.decoration { background-color: #f1c40f; }
+.color-option { display: inline-block; width: 40px; height: 40px; margin: 5px; cursor: pointer; border: 2px solid #333; }
+.selected { border: 4px solid #000; }
+.item-image { width: 60px; height: 60px; margin: 5px; cursor: pointer; border: 2px solid #333; }
 </style>
 </head>
 <body>
@@ -81,34 +50,50 @@
 <!-- Stage 1: Money Earning -->
 <div id="stage1">
     <div id="moneyDisplay">Money: ₹0</div>
-    <div>
-        <button onclick="earnMoney('sunny')">Predict Sunny ☀️</button>
-        <button onclick="earnMoney('rain')">Predict Rain 🌧️</button>
-        <button onclick="earnMoney('storm')">Predict Storm 🌩️</button>
-        <button onclick="earnMoney('mystery')">Open Mystery Box 🎁</button>
-    </div>
+    <div id="questionContainer"></div>
     <div id="feedback"></div>
     <div>Round: <span id="roundDisplay">1</span> / 5</div>
 </div>
 
-<!-- Stage 2: Allocation -->
+<!-- Stage 2: House Design -->
 <div id="stage2" class="hidden">
-    <h2>Allocate Your ₹20,000</h2>
-    <div id="remainingMoney">Remaining Money: ₹20000</div>
+    <h2>Design Your House</h2>
+    <div>Remaining Money: ₹<span id="remainingMoney">20000</span></div>
+    <h3>Choose Wall Color:</h3>
+    <div id="colorOptions">
+        <div class="color-option" style="background-color:#ff9999;" onclick="selectColor('#ff9999')"></div>
+        <div class="color-option" style="background-color:#99ff99;" onclick="selectColor('#99ff99')"></div>
+        <div class="color-option" style="background-color:#9999ff;" onclick="selectColor('#9999ff')"></div>
+        <div class="color-option" style="background-color:#ffff99;" onclick="selectColor('#ffff99')"></div>
+    </div>
 
-    <div class="slider-container">
-        <label>Infrastructure (Bricks, Cement, Windows) - ₹<span id="infraAmount">0</span></label>
-        <input type="range" id="infra" min="0" max="20000" step="100" value="0" oninput="updateAllocation()">
+    <h3>Choose Bricks / Cement:</h3>
+    <div>
+        <img src="https://via.placeholder.com/60x60?text=StdBrick" class="item-image" onclick="selectItem('brick','Standard',2000)">
+        <img src="https://via.placeholder.com/60x60?text=RedBrick" class="item-image" onclick="selectItem('brick','Red',3000)">
+        <img src="https://via.placeholder.com/60x60?text=DecoBrick" class="item-image" onclick="selectItem('brick','Decorative',4000)">
+        <img src="https://via.placeholder.com/60x60?text=BasicCem" class="item-image" onclick="selectItem('cement','Basic',2000)">
+        <img src="https://via.placeholder.com/60x60?text=StrongCem" class="item-image" onclick="selectItem('cement','Strong',3000)">
+        <img src="https://via.placeholder.com/60x60?text=PremiumCem" class="item-image" onclick="selectItem('cement','Premium',4000)">
     </div>
-    <div class="slider-container">
-        <label>Furniture (Beds, Sofas, Tables) - ₹<span id="furnAmount">0</span></label>
-        <input type="range" id="furn" min="0" max="20000" step="100" value="0" oninput="updateAllocation()">
+
+    <h3>Choose Furniture:</h3>
+    <div>
+        <img src="https://via.placeholder.com/60x60?text=Bed" class="item-image" onclick="selectItem('furniture','Bed',2000)">
+        <img src="https://via.placeholder.com/60x60?text=Sofa" class="item-image" onclick="selectItem('furniture','Sofa',3000)">
+        <img src="https://via.placeholder.com/60x60?text=Chair" class="item-image" onclick="selectItem('furniture','Chair',1000)">
+        <img src="https://via.placeholder.com/60x60?text=Table" class="item-image" onclick="selectItem('furniture','Table',1500)">
     </div>
-    <div class="slider-container">
-        <label>Decoration (Paintings, Lamps, Curtains) - ₹<span id="decorAmount">0</span></label>
-        <input type="range" id="decor" min="0" max="20000" step="100" value="0" oninput="updateAllocation()">
+
+    <h3>Choose Decorations:</h3>
+    <div>
+        <img src="https://via.placeholder.com/60x60?text=Painting" class="item-image" onclick="selectItem('decoration','Painting',1000)">
+        <img src="https://via.placeholder.com/60x60?text=Lamp" class="item-image" onclick="selectItem('decoration','Lamp',500)">
+        <img src="https://via.placeholder.com/60x60?text=Curtain" class="item-image" onclick="selectItem('decoration','Curtain',700)">
+        <img src="https://via.placeholder.com/60x60?text=Rug" class="item-image" onclick="selectItem('decoration','Rug',800)">
     </div>
-    <button onclick="goToStage3()">Build House 🏠</button>
+
+    <button onclick="finishDesign()">Finish Design 🏠</button>
     <div id="allocationFeedback" style="color:red;margin-top:10px;"></div>
 </div>
 
@@ -120,121 +105,95 @@
 </div>
 
 <script>
-/* ===== Stage 1: Earning Money ===== */
-let money = 0;
-let round = 1;
+// Stage 1
+let money = 0, round = 1;
 const totalRounds = 5;
-const targetMoney = 20000;
-const feedback = document.getElementById('feedback');
+const minMoney = 20000;
+const questionContainer = document.getElementById('questionContainer');
 const moneyDisplay = document.getElementById('moneyDisplay');
 const roundDisplay = document.getElementById('roundDisplay');
+const feedback = document.getElementById('feedback');
 
-function earnMoney(choice) {
-    let gain = 0;
-    let color = 'green';
-    const rand = Math.random();
+const scenarios = [
+    {question:"You need to survive a storm. Which action do you take?", options:[{text:"Take shelter immediately",money:4000},{text:"Secure supplies first",money:3500},{text:"Call for help",money:4500}]},
+    {question:"You want to gather resources quickly. What do you do?", options:[{text:"Use vehicle",money:4000},{text:"Go on foot",money:3500},{text:"Ask neighbors",money:4500}]},
+    {question:"You need water for your team. Choose action:", options:[{text:"Collect from river",money:4000},{text:"Buy from shop",money:3500},{text:"Store rainwater",money:4500}]},
+    {question:"You need firewood for warmth. What do you do?", options:[{text:"Gather in forest",money:4000},{text:"Buy online",money:3500},{text:"Trade for wood",money:4500}]},
+    {question:"You need food for survival. Choose option:", options:[{text:"Cook from garden",money:4000},{text:"Buy groceries",money:3500},{text:"Ask friends",money:4500}]}
+];
 
-    if(choice === 'sunny') {
-        if(rand < 0.5) gain = 5000; else gain = -2000;
-    } else if(choice === 'rain') {
-        if(rand < 0.35) gain = 3000; else gain = -1500;
-    } else if(choice === 'storm') {
-        if(rand < 0.15) gain = -2000; else gain = 1000;
-    } else if(choice === 'mystery') {
-        if(rand < 0.05) gain = 10000; // rare bonus
-        else if(rand < 0.5) gain = 3000;
-        else gain = -1000;
-    }
-
-    money += gain;
-    if(money < 0) money = 0;
+function showScenario() {
+    if(round>totalRounds){ checkMoney(); return; }
+    const sc = scenarios[round-1];
+    questionContainer.innerHTML = `<h3>${sc.question}</h3>` + sc.options.map((o,i)=>`<button onclick="earnMoney(${i})">${o.text}</button>`).join("");
+}
+function earnMoney(optionIndex){
+    const sc = scenarios[round-1];
+    const gained = sc.options[optionIndex].money;
+    money += gained;
     moneyDisplay.innerText = `Money: ₹${money}`;
-    roundDisplay.innerText = round;
-
-    if(gain > 0 && rand >=0.05) feedback.innerText = `You gained ₹${gain}! 🌞`;
-    else if(gain < 0) { feedback.innerText = `Oops! You lost ₹${-gain}! 🌩️`; color='red'; }
-    else if(rand < 0.05) { feedback.innerText = `🎉 Lucky Bonus! +₹${gain}`; color='gold'; }
-
-    feedback.style.color = color;
-    feedback.style.fontWeight = 'bold';
-
+    feedback.innerText = `✅ You earned ₹${gained}`;
+    feedback.style.color = 'green';
     round++;
-    if(round > totalRounds){
+    roundDisplay.innerText = round;
+    setTimeout(showScenario,500);
+}
+function checkMoney(){
+    if(money>=minMoney){
         document.getElementById('stage1').classList.add('hidden');
         document.getElementById('stage2').classList.remove('hidden');
-        initStage2();
-    }
-}
-
-/* ===== Stage 2: Allocation ===== */
-let infraVal = 0, furnVal = 0, decorVal = 0;
-function initStage2(){
-    document.getElementById('infra').max = money;
-    document.getElementById('furn').max = money;
-    document.getElementById('decor').max = money;
-    updateAllocation();
-}
-
-function updateAllocation(){
-    infraVal = parseInt(document.getElementById('infra').value);
-    furnVal = parseInt(document.getElementById('furn').value);
-    decorVal = parseInt(document.getElementById('decor').value);
-
-    const total = infraVal + furnVal + decorVal;
-    const remaining = money - total;
-    document.getElementById('infraAmount').innerText = infraVal;
-    document.getElementById('furnAmount').innerText = furnVal;
-    document.getElementById('decorAmount').innerText = decorVal;
-    document.getElementById('remainingMoney').innerText = `Remaining Money: ₹${remaining}`;
-    if(remaining < 0){
-        document.getElementById('allocationFeedback').innerText = "You cannot allocate more than total money!";
     } else {
-        document.getElementById('allocationFeedback').innerText = "";
+        feedback.innerText = "💸 You did not earn enough money. Restarting...";
+        setTimeout(()=>{money=0; round=1; moneyDisplay.innerText='Money: ₹0'; roundDisplay.innerText='1'; showScenario();},2000);
     }
 }
+showScenario();
 
-function goToStage3(){
-    const total = infraVal + furnVal + decorVal;
-    if(total > money){
-        document.getElementById('allocationFeedback').innerText = "Allocation exceeds earned money!";
-        return;
-    }
+// Stage 2
+let remainingMoney = 20000;
+let selections = {color:'#ff9999',brick:null,cement:null,furniture:[],decoration:[]};
+function selectColor(color){ selections.color=color; document.querySelectorAll('.color-option').forEach(c=>c.classList.remove('selected')); event.target.classList.add('selected'); }
+function selectItem(category,name,price){
+    if(remainingMoney<price){ document.getElementById('allocationFeedback').innerText="Not enough money!"; return; }
+    remainingMoney-=price;
+    document.getElementById('remainingMoney').innerText=remainingMoney;
+    document.getElementById('allocationFeedback').innerText="";
+    if(category==='brick') selections.brick=name;
+    else if(category==='cement') selections.cement=name;
+    else if(category==='furniture') selections.furniture.push(name);
+    else if(category==='decoration') selections.decoration.push(name);
+}
+function finishDesign(){
     document.getElementById('stage2').classList.add('hidden');
     document.getElementById('stage3').classList.remove('hidden');
     buildHouse();
 }
 
-/* ===== Stage 3: House Construction ===== */
+// Stage 3
 function buildHouse(){
-    const houseContainer = document.getElementById('houseContainer');
-    houseContainer.innerHTML = '';
-
-    // Blocks for Infrastructure
-    const infraBlocks = Math.floor(infraVal / 1000);
-    const furnBlocks = Math.floor(furnVal / 1000);
-    const decorBlocks = Math.floor(decorVal / 1000);
-
-    const totalBlocks = infraBlocks + furnBlocks + decorBlocks;
-    for(let i=0;i<totalBlocks;i++){
-        const block = document.createElement('div');
-        block.classList.add('block');
-        if(i<infraBlocks) block.classList.add('filled');
-        else if(i<infraBlocks+furnBlocks) block.classList.add('furniture');
-        else block.classList.add('decoration');
-        houseContainer.appendChild(block);
-        // Animate block
-        setTimeout(()=>{ block.style.transform = "scale(1.1)"; }, i*200);
+    const houseContainer=document.getElementById('houseContainer');
+    houseContainer.innerHTML='';
+    // 10 blocks infrastructure
+    for(let i=0;i<10;i++){
+        const b=document.createElement('div');
+        b.classList.add('block','filled');
+        b.style.backgroundColor=selections.color;
+        houseContainer.appendChild(b);
     }
-
-    // Feedback message
-    const msg = document.getElementById('finalMessage');
-    if(totalBlocks >= 20){
-        msg.innerText = "🎉 Congratulations! You built your dream house!";
-        msg.style.color = 'green';
-    } else {
-        msg.innerText = "💸 House incomplete! Try allocating better next time.";
-        msg.style.color = 'red';
-    }
+    // furniture blocks
+    selections.furniture.forEach(f=>{
+        const b=document.createElement('div');
+        b.classList.add('block','furniture');
+        houseContainer.appendChild(b);
+    });
+    // decoration blocks
+    selections.decoration.forEach(d=>{
+        const b=document.createElement('div');
+        b.classList.add('block','decoration');
+        houseContainer.appendChild(b);
+    });
+    document.getElementById('finalMessage').innerText="🎉 Congratulations! Your dream house is complete!";
+    document.getElementById('finalMessage').style.color='green';
 }
 </script>
 
