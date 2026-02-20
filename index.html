@@ -2,25 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dream House Builder Game</title>
+<title>Dream House Builder</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body {font-family: Arial, sans-serif; text-align: center; margin:0; padding:0; background:#eef3f7;}
-h1,h2 {color:#2c3e50;}
-.hidden {display:none;}
-button {padding:10px 15px; margin:5px; font-size:16px; cursor:pointer;}
-img.choice {width:80px; height:80px; border:2px solid #444; margin:5px; cursor:pointer;}
-.selected {border:4px solid #000 !important;}
-#houseDisplay {position:relative; width:350px; height:300px; margin:20px auto; background-color:#ffffff; border:3px solid #555;}
-#moneyDisplay {font-size:24px; margin:15px 0;}
-#feedback {min-height:30px; font-size:18px;}
+body {font-family: Arial, sans-serif; background: #eef3f7; text-align: center; margin:0; padding:0;}
+h1, h2 {color: #2c3e50;}
+.hidden {display: none;}
+button {padding: 10px 12px; margin: 6px; font-size: 16px; cursor: pointer;}
+img.choice {width: 90px; height: 90px; border: 2px solid #444; margin:5px; cursor:pointer;}
+img.choice.selected {border: 4px solid #000;}
+#moneyDisplay {font-size: 24px; margin: 12px 0;}
+#feedback {font-size:18px; min-height:30px;}
+#houseDisplay {width:350px; height:280px; margin:20px auto; position:relative; background-size:cover; background-repeat:no-repeat; border:2px solid #333;}
+.item-label {position:absolute; font-size:14px; background:rgba(255,255,255,0.7); padding:3px 6px; border-radius:4px;}
 </style>
 </head>
 <body>
 
-<h1>⚒️ Dream House Builder Adventure</h1>
+<h1>🏡 Dream House Builder</h1>
 
-<!-- STAGE 1 -->
+<!-- === STAGE 1: Earning Money === -->
 <div id="stage1">
   <div id="moneyDisplay">Money: ₹0</div>
   <div id="scenarioQ"></div>
@@ -28,154 +29,108 @@ img.choice {width:80px; height:80px; border:2px solid #444; margin:5px; cursor:p
   <div>Round: <span id="roundNum">1</span>/5</div>
 </div>
 
-<!-- STAGE 2 -->
+<!-- === STAGE 2: House Design === -->
 <div id="stage2" class="hidden">
-  <h2>🏗️ Design Your House</h2>
+  <h2>🎨 Design Your House</h2>
   <div>Remaining Money: ₹<span id="remaining">20000</span></div>
 
   <h3>Choose Wall Color</h3>
-  <img src="https://i.imgur.com/AZ6Zg7O.png" class="choice wall" data-color="#ffcccc">
-  <img src="https://i.imgur.com/j3rwL92.png" class="choice wall" data-color="#ccffcc">
-  <img src="https://i.imgur.com/K0tEoYo.png" class="choice wall" data-color="#ccccff">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/wall_beige.png" class="choice wall" data-color="#f6eacd">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/wall_green.png" class="choice wall" data-color="#ccf2cc">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/wall_blue.png" class="choice wall" data-color="#cce5ff">
 
   <h3>Choose Roof Style</h3>
-  <img src="https://i.imgur.com/f6I87N7.png" class="choice roof" data-roof="https://i.imgur.com/f6I87N7.png">
-  <img src="https://i.imgur.com/NhY9pRd.png" class="choice roof" data-roof="https://i.imgur.com/NhY9pRd.png">
-  <img src="https://i.imgur.com/muJpX2x.png" class="choice roof" data-roof="https://i.imgur.com/muJpX2x.png">
-
-  <h3>Choose Bricks</h3>
-  <img src="https://i.imgur.com/8fI3j2Y.png" class="choice brick" data-brick="Standard" data-cost="2000">
-  <img src="https://i.imgur.com/u8EuZ6C.png" class="choice brick" data-brick="Red" data-cost="3000">
-  <img src="https://i.imgur.com/xZV1i4n.png" class="choice brick" data-brick="Decorative" data-cost="4000">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/roof_red.png" class="choice roof" data-roof="https://raw.githubusercontent.com/openai/house-assets/main/roof_red.png">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/roof_brown.png" class="choice roof" data-roof="https://raw.githubusercontent.com/openai/house-assets/main/roof_brown.png">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/roof_gray.png" class="choice roof" data-roof="https://raw.githubusercontent.com/openai/house-assets/main/roof_gray.png">
 
   <h3>Choose Furniture</h3>
-  <img src="https://i.imgur.com/XxN1MPA.png" class="choice furniture" data-item="Sofa" data-cost="3000">
-  <img src="https://i.imgur.com/j6VnrJo.png" class="choice furniture" data-item="Bed" data-cost="2500">
-  <img src="https://i.imgur.com/DZ2jVfT.png" class="choice furniture" data-item="Table" data-cost="1500">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/sofa.png" class="choice furniture" data-item="Sofa" data-cost="3000">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/bed.png" class="choice furniture" data-item="Bed" data-cost="2500">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/table.png" class="choice furniture" data-item="Table" data-cost="1500">
 
   <h3>Choose Decorations</h3>
-  <img src="https://i.imgur.com/7iR5ILv.png" class="choice decor" data-item="Painting" data-cost="1000">
-  <img src="https://i.imgur.com/4cFzdgV.png" class="choice decor" data-item="Lamp" data-cost="700">
-  <img src="https://i.imgur.com/I8j7Fkt.png" class="choice decor" data-item="Curtain" data-cost="800">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/painting.png" class="choice decor" data-item="Painting" data-cost="1000">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/lamp.png" class="choice decor" data-item="Lamp" data-cost="700">
+  <img src="https://raw.githubusercontent.com/openai/house-assets/main/curtains.png" class="choice decor" data-item="Curtains" data-cost="800">
 
   <button onclick="finishDesign()">🏠 Build House</button>
   <div id="allocFeedback" style="color:red; margin-top:10px;"></div>
 </div>
 
-<!-- STAGE 3 -->
+<!-- === STAGE 3: Show Final House === -->
 <div id="stage3" class="hidden">
-  <h2>🎉 Your Dream House</h2>
+  <h2>🏡 Your Dream House</h2>
   <div id="houseDisplay"></div>
-  <div id="finalMsg" style="font-size:22px; margin-top:15px;"></div>
+  <div id="finalMsg" style="font-size:20px; margin-top:10px;"></div>
 </div>
 
 <script>
 // ===== STAGE 1 =====
-let money=0, round=1;
+let money = 0, round = 1;
+const scenarios = [
+  {q:"You helped fix a friend’s house. Pick one:", opt:["Showed tools","Carried wood","Cleaned yard"], reward:[4000,3500,4500]},
+  {q:"Town party needs help. You:", opt:["Decorate","Serve drinks","Guide visitors"], reward:[4000,3500,4500]},
+  {q:"Farm work earns you money. Do you:", opt:["Harvest","Carry baskets","Feed animals"], reward:[4000,3500,4500]},
+  {q:"Your neighbor pays you to paint. You:", opt:["Paint walls","Mix paint","Fix door"], reward:[4000,3500,4500]},
+  {q:"Local shop hires help. You:", opt:["Stock shelves","Clean floor","Organize goods"], reward:[4000,3500,4500]}
+];
 const scenarioQ = document.getElementById("scenarioQ");
 const feedback = document.getElementById("feedback");
 const moneyDisplay = document.getElementById("moneyDisplay");
 const roundNum = document.getElementById("roundNum");
 
-const scenarios = [
-  {q:"You helped neighbors with chores. Pick what you did:", opt:["Fixed fences","Picked fruits","Organized supplies"], reward:[4000,3500,4500]},
-  {q:"Town event needs helpers. What do you do?", opt:["Manage tents","Serve food","Sell tickets"], reward:[4000,3500,4500]},
-  {q:"Storm is coming but you can earn. Where help?", opt:["Secure roofs","Clean paths","Assist elders"], reward:[4000,3500,4500]},
-  {q:"Farm needs hands. You:", opt:["Harvest crops","Carry baskets","Feed livestock"], reward:[4000,3500,4500]},
-  {q:"Builders need extra hands. You:", opt:["Mix cement","Carry bricks","Paint walls"], reward:[4000,3500,4500]}
-];
-
 function showRound(){
   if(round>5){ endStage1(); return; }
   const s = scenarios[round-1];
-  scenarioQ.innerHTML="<h3>"+s.q+"</h3>";
-  s.opt.forEach((o,i)=>{
-    scenarioQ.innerHTML+=`<button onclick="earn(${i})">${o}</button>`;
-  });
+  scenarioQ.innerHTML = `<h3>${s.q}</h3>`;
+  s.opt.forEach((o,i)=> scenarioQ.innerHTML += `<button onclick="earn(${i})">${o}</button>`);
 }
-function earn(i){
-  let gained = scenarios[round-1].reward[i];
+function earn(index){
+  let gained = scenarios[round-1].reward[index];
   money += gained;
-  moneyDisplay.innerText="Money: ₹"+money;
-  feedback.innerText="✅ You earned ₹"+gained;
+  moneyDisplay.innerText = `Money: ₹${money}`;
+  feedback.innerText = `✅ You earned ₹${gained}`;
   feedback.style.color="green";
   round++;
-  roundNum.innerText=round;
-  setTimeout(showRound,400);
+  roundNum.innerText = round;
+  setTimeout(showRound, 400);
 }
 function endStage1(){
-  if(money>=20000){
+  if(money >= 20000){
     document.getElementById("stage1").classList.add("hidden");
     document.getElementById("stage2").classList.remove("hidden");
   } else {
-    feedback.innerText="💸 Not enough money earned. Restarting...";
-    setTimeout(()=>{money=0;round=1;moneyDisplay.innerText="Money: ₹0";roundNum.innerText="1"; showRound();},2000);
+    feedback.innerText="💸 Not enough money. Restarting...";
+    setTimeout(() => {money=0; round=1; moneyDisplay.innerText="Money: ₹0"; roundNum.innerText="1"; showRound();}, 2000);
   }
 }
 showRound();
 
 // ===== STAGE 2 =====
-let remaining=20000;
-document.getElementById("remaining").innerText=remaining;
-let designChoices={wallColor:null,roof:null,brick:null,furniture:[],decor:[]};
+let remaining = 20000;
+document.getElementById("remaining").innerText = remaining;
+let designChoices={wallColor:null,roof:null,furniture:[],decor:[]};
 
-document.querySelectorAll(".wall").forEach(el=>{
-  el.onclick=function(){
-    document.querySelectorAll(".wall").forEach(x=>x.classList.remove("selected"));
-    this.classList.add("selected");
-    designChoices.wallColor=this.dataset.color;
-  };
+function selectChoice(elements, key, value){
+  elements.forEach(el=>el.classList.remove("selected"));
+  event.target.classList.add("selected");
+  designChoices[key] = value;
+}
+
+document.querySelectorAll(".wall").forEach(el => el.onclick = () => selectChoice([...document.querySelectorAll(".wall")], "wallColor", el.dataset.color));
+document.querySelectorAll(".roof").forEach(el => el.onclick = () => { selectChoice([...document.querySelectorAll(".roof")], "roof", el.dataset.roof); remaining -= 1000; document.getElementById("remaining").innerText = remaining; });
+document.querySelectorAll(".furniture").forEach(el => el.onclick = () => {
+  let cost = parseInt(el.dataset.cost);
+  if(remaining >= cost){ el.classList.toggle("selected"); designChoices.furniture.push(el.dataset.item); remaining -= cost; document.getElementById("remaining").innerText = remaining; }
 });
-document.querySelectorAll(".roof").forEach(el=>{
-  el.onclick=function(){
-    document.querySelectorAll(".roof").forEach(x=>x.classList.remove("selected"));
-    this.classList.add("selected");
-    designChoices.roof=this.dataset-roof;
-    designChoices.roof=this.dataset.roof;
-    remaining -= 1000;
-    document.getElementById("remaining").innerText=remaining;
-  };
-});
-document.querySelectorAll(".brick").forEach(el=>{
-  el.onclick=function(){
-    let cost=parseInt(this.dataset.cost);
-    if(remaining>=cost){
-      document.querySelectorAll(".brick").forEach(x=>x.classList.remove("selected"));
-      this.classList.add("selected");
-      designChoices.brick=this.dataset.brick;
-      remaining-=cost;
-      document.getElementById("remaining").innerText=remaining;
-    }
-  };
-});
-document.querySelectorAll(".furniture").forEach(el=>{
-  el.onclick=function(){
-    let cost=parseInt(this.dataset.cost);
-    if(remaining>=cost){
-      this.classList.toggle("selected");
-      designChoices.furniture.push(this.dataset.item);
-      remaining-=cost;
-      document.getElementById("remaining").innerText=remaining;
-    }
-  };
-});
-document.querySelectorAll(".decor").forEach(el=>{
-  el.onclick=function(){
-    let cost=parseInt(this.dataset.cost);
-    if(remaining>=cost){
-      this.classList.toggle("selected");
-      designChoices.decor.push(this.dataset.item);
-      remaining-=cost;
-      document.getElementById("remaining").innerText=remaining;
-    }
-  };
+document.querySelectorAll(".decor").forEach(el => el.onclick = () => {
+  let cost = parseInt(el.dataset.cost);
+  if(remaining >= cost){ el.classList.toggle("selected"); designChoices.decor.push(el.dataset.item); remaining -= cost; document.getElementById("remaining").innerText = remaining; }
 });
 
 function finishDesign(){
-  if(!designChoices.wallColor || !designChoices.roof){
-    document.getElementById("allocFeedback").innerText="Choose both wall & roof!";
-    return;
-  }
+  if(!designChoices.wallColor || !designChoices.roof){ document.getElementById("allocFeedback").innerText="Choose wall color & roof!"; return; }
   document.getElementById("stage2").classList.add("hidden");
   document.getElementById("stage3").classList.remove("hidden");
   showHouse();
@@ -184,32 +139,22 @@ function finishDesign(){
 // ===== STAGE 3 =====
 function showHouse(){
   const house = document.getElementById("houseDisplay");
-  house.style.backgroundColor=designChoices.wallColor;
+  house.style.backgroundColor = designChoices.wallColor;
+  house.style.backgroundImage = `url(${designChoices.roof})`;
 
-  // add roof
-  let roofImg = new Image();
-  roofImg.src = designChoices.roof;
-  roofImg.style.position="absolute";
-  roofImg.style.top="-10px";
-  roofImg.style.width="350px";
-  house.appendChild(roofImg);
-
-  // add furniture/decor text
-  let y=150;
+  let y=140;
   designChoices.furniture.forEach(item=>{
     let div=document.createElement("div");
-    div.innerText=item; div.style.position="absolute"; div.style.top=y+"px"; div.style.left="10px"; div.style.fontSize="18px";
-    house.appendChild(div);
-    y+=25;
+    div.innerText=item; div.className="item-label"; div.style.top=`${y}px`; div.style.left="10px";
+    house.appendChild(div); y+=25;
   });
   designChoices.decor.forEach(item=>{
     let div=document.createElement("div");
-    div.innerText=item; div.style.position="absolute"; div.style.top=y+"px"; div.style.right="10px"; div.style.fontSize="18px";
-    house.appendChild(div);
-    y+=25;
+    div.innerText=item; div.className="item-label"; div.style.top=`${y}px`; div.style.right="10px";
+    house.appendChild(div); y+=25;
   });
 
-  document.getElementById("finalMsg").innerText="🎉 Congratulations! Your Dream House is Built!";
+  document.getElementById("finalMsg").innerText="🎉 Congratulations! Your Dream House is Complete!";
 }
 </script>
 
